@@ -1,4 +1,7 @@
-import { Typography } from "@mui/material";
+import {  BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./component/screen/auth/login";
+import Register from "./component/screen/auth/register";
+
 
 
 export default function App() {
@@ -6,7 +9,13 @@ export default function App() {
 
   return (
     <>
-      <Typography variant="body2" sx={{textAlign: "center"}}>ukk</Typography>
+      
+        <Router>
+          <Routes>
+            <Route path="/" element={<Login/>}/>
+            <Route path="/register" element={<Register/>}/>
+          </Routes>
+        </Router>
     </>
   )
 }
