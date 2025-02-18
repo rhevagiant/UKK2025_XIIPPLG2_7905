@@ -3,7 +3,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import { bluegray } from "../../../themes/color";
 import { useEffect, useState } from "react";
 import { getAllTasks } from "../../../store/endpoint/task/taskAPI";
-import Taskamico from "../../../../public/Task-amico.svg"
+import Taskamico from "/Task-amico.svg"
 
 export default function Dashboard() {
     const [tasks, setTasks] = useState([]);
@@ -31,7 +31,7 @@ export default function Dashboard() {
 
             <Grid item xs={12} sm={6}>
                 <Box sx={{ textAlign: "left", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-                    <Paper sx={{ p: 4, width: "100%", height:"75vh", overflowY: "auto", maxWidth: 500, bgcolor: bluegray[700], boxShadow: 3, borderRadius: 2, color: "white" }}>
+                    <Paper sx={{ p: 4, width: "100%", height:"80vh", overflowY: "auto", maxWidth: 500, bgcolor: bluegray[700], boxShadow: 3, borderRadius: 2, color: "white" }}>
                         <Typography variant="h4" sx={{ mb: 2, textAlign: 'center' }}>
                             <strong>Dashboard</strong>
                         </Typography>
