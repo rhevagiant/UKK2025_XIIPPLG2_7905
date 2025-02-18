@@ -15,7 +15,7 @@ const SidebarNavbar = () => {
 
   const menuItems = [
     { text: "Dashboard", path: "/dashboard", icon: <DashboardIcon sx={{ color: bluegray[700] }}/> },
-    { text: "Tasks", path: "/categories", icon: <AssignmentIcon sx={{ color: bluegray[700] }}/> },
+    { text: "Tasks", path: "/tasks", icon: <AssignmentIcon sx={{ color: bluegray[700] }}/> },
   ];
 
   const handleMenuOpen = (event) => {
