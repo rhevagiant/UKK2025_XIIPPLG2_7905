@@ -21,3 +21,18 @@ export const login = async (credentials) => {
       throw error;
     }
   };
+
+  export const getUserProfile = async (userId) => {
+    try{
+      const response =await api.get(`user/profile/${userId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user profile", error);
+      throw error;
+    }
+  };
+
+  export const logout = async() => {
+    const response = await api.post('user/logout');
+    return response.data;
+  };
