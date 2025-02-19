@@ -6,7 +6,7 @@ import {
     Alert,
 } from "@mui/material";
 import { getCategories, createCategories, updateCategory, deleteCategory, getCategoryTasks } from "../../../store/endpoint/category/categoryAPI";
-import { addTasks, getAllTasks } from "../../../store/endpoint/task/taskAPI";
+import { addTasks, deleteTask, getAllTasks } from "../../../store/endpoint/task/taskAPI";
 import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -177,6 +177,38 @@ export default function Tasks() {
         }
     }
 
+    const handleDeleteTask = async (taskId) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await deleteTask(taskId);
+                    setTasks(tasks.filter(task => task.id !== taskId));
+
+                    Swal.fire(
+                        "Deleted!",
+                        "Your task has been deleted.",
+                        "success"
+                    );
+                } catch (error) {
+                    Swal.fire(
+                        "Error!",
+                        "Failed to delete task.",
+                        "error"
+                    );
+                    console.error("Failed to delete task", error);
+                }
+            }
+        });
+    };
+
 
 
     return (
@@ -217,7 +249,7 @@ export default function Tasks() {
             <Paper sx={{ width: "75%", p: 2, display: "flex", flexDirection: "column" }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Typography variant="h6">Tasks</Typography>
-                    <Typography variant="subtitle1" color="textSecondary">Category: All Categories</Typography>
+                    <Typography variant="subtitle1" color="textSecondary">Category: {selectedCategory}</Typography>
                 </Box>
                 {alertMessage && (
                     <Alert severity="warning" sx={{ mb: 2 }}>
@@ -262,7 +294,7 @@ export default function Tasks() {
                                             <IconButton>
                                                 <EditIcon color="secondary" />
                                             </IconButton>
-                                            <IconButton>
+                                            <IconButton onClick={()=>handleDeleteTask(task.id)}> 
                                                 <DeleteIcon color="error" />
                                             </IconButton>
                                         </TableCell>
