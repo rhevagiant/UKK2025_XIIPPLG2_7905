@@ -4,12 +4,13 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import { bluegray } from "../../themes/color";
 import { useState } from "react";
-import { logout } from "../../store/endpoint/auth/authAPI";
+import { useAuth } from "../../store/context/authContext";
 import Swal from "sweetalert2";
 
 const drawerWidth = 240;
 
 const SidebarNavbar = () => {
+  const { logout } = useAuth();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
 
@@ -40,6 +41,7 @@ const SidebarNavbar = () => {
         try {
           await logout();
           localStorage.removeItem("userId");
+          localStorage.removeItem("isAuthenticated");
           navigate("/");
         } catch (error) {
           console.error("Logout error:", error);

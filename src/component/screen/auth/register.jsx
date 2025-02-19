@@ -10,6 +10,7 @@ import {
   Paper,
   Link,
 } from "@mui/material";
+import { bluegray } from "../../../themes/color";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -60,9 +61,18 @@ const Register = () => {
 
   return (
     <Container maxWidth="sm">
-      <Paper elevation={3} sx={{ p: 4, mt: 5, textAlign: "center" }}>
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          Register
+      <Paper
+        elevation={4}
+        sx={{
+          p: 4,
+          mt: 5,
+          borderRadius: 3,
+          textAlign: "center",
+          backgroundColor: "#f9f9f9",
+        }}
+      >
+        <Typography variant="h4" fontWeight="bold" gutterBottom sx={{color: bluegray[700]}}>
+          Create Account
         </Typography>
 
         {error && (
@@ -80,6 +90,7 @@ const Register = () => {
               onChange={handleChange}
               required
               fullWidth
+              variant="outlined"
             />
             <TextField
               label="Full Name"
@@ -88,6 +99,7 @@ const Register = () => {
               onChange={handleChange}
               required
               fullWidth
+              variant="outlined"
             />
             <TextField
               label="Email"
@@ -97,6 +109,7 @@ const Register = () => {
               onChange={handleChange}
               required
               fullWidth
+              variant="outlined"
             />
             <TextField
               label="Password"
@@ -108,17 +121,31 @@ const Register = () => {
               error={!!passwordError}
               helperText={passwordError}
               fullWidth
+              variant="outlined"
             />
-            <Button type="submit" variant="contained" color="primary" disabled={!!passwordError} fullWidth>
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{
+                mt: 1,
+                py: 1.5,
+                fontSize: "1rem",
+                textTransform: "none",
+                borderRadius: 2,
+                backgroundColor: bluegray[700],
+                ":hover": { backgroundColor: bluegray[500] },
+              }}
+            >
               Register
             </Button>
           </Box>
         </form>
 
-        <Typography variant="body2" sx={{ mt: 2 }}>
+        <Typography variant="body2" sx={{ mt: 3 }}>
           Already have an account?{" "}
-          <Link href="/" underline="hover">
-            Login
+          <Link href="/" underline="hover" sx={{color: bluegray[700]}}>
+            <strong>Login here</strong>
           </Link>
         </Typography>
       </Paper>
