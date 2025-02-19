@@ -6,7 +6,7 @@ import {
     Alert,
 } from "@mui/material";
 import { getCategories, createCategories, updateCategory, deleteCategory, getCategoryTasks } from "../../../store/endpoint/category/categoryAPI";
-import { addTasks, deleteTask, editTask, getAllTasks } from "../../../store/endpoint/task/taskAPI";
+import { addTasks, deleteTask, editTask, getAllTasks, updateTaskStatus } from "../../../store/endpoint/task/taskAPI";
 import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -237,6 +237,43 @@ export default function Tasks() {
         }
     };
 
+    const handleCompleteTask = async (taskId) => {
+        try {
+            await updateTaskStatus(taskId, "COMPLETE");
+            setTasks(tasks.map(task =>
+                task.id === taskId ? { ...task, status: "COMPLETE" } : task
+            ));
+
+            Swal.fire({
+                title: "Task Completed!",
+                text: "Do you want to undo this action?",
+                icon: "success",
+                showCancelButton: true,
+                confirmButtonText: "Undo",
+                cancelButtonText: "Close",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    handleUndoTask(taskId);
+                }
+            });
+        } catch (error) {
+            console.error("Failed to complete task", error);
+        }
+    };
+
+    const handleUndoTask = async (taskId) => {
+        try {
+            await updateTaskStatus(taskId, "NOT_COMPLETE");
+            setTasks(tasks.map(task =>
+                task.id === taskId ? { ...task, status: "NOT_COMPLETE" } : task
+            ));
+
+            Swal.fire("Undone!", "The task has been reverted.", "info");
+        } catch (error) {
+            console.error("Failed to undo task", error);
+        }
+    };
+
 
 
     return (
@@ -311,16 +348,16 @@ export default function Tasks() {
                                         <TableCell>{new Date(task.date).toLocaleDateString()}</TableCell>
                                         <TableCell>
                                             {task.status === "COMPLETE" ? (
-                                                <IconButton>
-                                                    <UndoIcon color="warning" />
+                                                <IconButton  onClick={() => handleUndoTask(task.id)}>
+                                                    <UndoIcon sx={{color: bluegray[700]}} />
                                                 </IconButton>
                                             ) : (
-                                                <IconButton>
-                                                    <CheckIcon color="primary" />
+                                                <IconButton  onClick={() => handleCompleteTask(task.id)}>
+                                                    <CheckIcon sx={{color: bluegray[700]}} />
                                                 </IconButton>
                                             )}
                                             <IconButton onClick={()=>handleOpenEditDialog(task)}>
-                                                <EditIcon color="secondary" />
+                                                <EditIcon sx={{color: bluegray[700]}} />
                                             </IconButton>
                                             <IconButton onClick={()=>handleDeleteTask(task.id)}> 
                                                 <DeleteIcon color="error" />

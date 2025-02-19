@@ -11,7 +11,7 @@ export const getAllTasks = async () => {
 };
 
 export const updateTaskStatus = async (taskId, status) => {
-  const response = await api.patch(`/tasks/status/${taskId}`, { status });
+  const response = await api.patch(`/tasks/${taskId}/status`, { status });
   return response.data;
 };
 
