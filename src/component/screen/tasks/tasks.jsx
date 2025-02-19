@@ -6,7 +6,7 @@ import {
     Alert,
 } from "@mui/material";
 import { getCategories, createCategories, updateCategory, deleteCategory, getCategoryTasks } from "../../../store/endpoint/category/categoryAPI";
-import { addTasks, deleteTask, getAllTasks } from "../../../store/endpoint/task/taskAPI";
+import { addTasks, deleteTask, editTask, getAllTasks } from "../../../store/endpoint/task/taskAPI";
 import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -33,6 +33,9 @@ export default function Tasks() {
     const [newTask, setNewTask] = useState("");
     const [openTaskDialog, setOpenTaskDialog] = useState(false);
     const [alertMessage, setAlertMessage] = useState("");
+    const [openEditDialog, setOpenEditDialog] = useState(false);
+    const [editTaskId, setEditTaskId] = useState(null);
+    const [editTaskName, setEditTaskName] = useState("");
 
 
 
@@ -208,6 +211,31 @@ export default function Tasks() {
             }
         });
     };
+    
+    const handleOpenEditDialog = (task) => {
+        setEditTaskId(task.id);
+        setEditTaskName(task.task);
+        setOpenEditDialog(true);
+    };
+
+    const handleCloseEditDialog = () => {
+        setOpenEditDialog(false);
+        setEditTaskId(null);
+        setEditTaskName("");
+    };
+
+    const handleEditTaskSubmit = async () => {
+        try {
+            await editTask(editTaskId, { task: editTaskName }); 
+            setTasks(tasks.map(task =>
+                task.id === editTaskId ? { ...task, task: editTaskName } : task
+            ));
+
+            handleCloseEditDialog();
+        } catch (error) {
+            console.error("Failed to edit task", error);
+        }
+    };
 
 
 
@@ -291,7 +319,7 @@ export default function Tasks() {
                                                     <CheckIcon color="primary" />
                                                 </IconButton>
                                             )}
-                                            <IconButton>
+                                            <IconButton onClick={()=>handleOpenEditDialog(task)}>
                                                 <EditIcon color="secondary" />
                                             </IconButton>
                                             <IconButton onClick={()=>handleDeleteTask(task.id)}> 
@@ -364,6 +392,25 @@ export default function Tasks() {
                 <DialogActions>
                     <Button onClick={handleCloseTaskDialog}>Cancel</Button>
                     <Button onClick={handlesubmitTask} variant="contained" sx={{ backgroundColor: bluegray[700] }}>Submit</Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* edit task */}
+            <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>
+                <DialogTitle>Edit Task</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        autoFocus
+                        margin="dense"
+                        label="Task Name"
+                        fullWidth
+                        value={editTaskName}
+                        onChange={(e) => setEditTaskName(e.target.value)}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseEditDialog}>Cancel</Button>
+                    <Button onClick={handleEditTaskSubmit} variant="contained" sx={{ backgroundColor: bluegray[700] }}>Save</Button>
                 </DialogActions>
             </Dialog>
 
