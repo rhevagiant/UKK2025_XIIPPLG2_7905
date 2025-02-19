@@ -276,6 +276,11 @@ export default function Tasks() {
         }
     };
 
+    const handleClearCategory = async () =>{
+        const taskData = await getAllTasks();
+        setTasks(taskData);
+        setSelectedCategory("All Categories");
+    }
 
 
     return (
@@ -295,6 +300,11 @@ export default function Tasks() {
                 />
                 <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
                     <List>
+                        <ListItem >
+                            <ListItemButton onClick={handleClearCategory}  sx={{ justifyContent: "space-between" }}>
+                               All Categories
+                            </ListItemButton>
+                        </ListItem>
                         {categories.map(category => (
                             <ListItem
                                 key={category.id}
