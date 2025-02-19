@@ -3,7 +3,9 @@ import {
     Box, Typography, Paper, List, ListItem, ListItemButton, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, IconButton, Button, TablePagination, TextField, Dialog, DialogActions, DialogContent, DialogTitle,
     MenuItem, Menu,
-    Alert,
+    Alert, FormControl,
+    InputLabel,
+    Select,
 } from "@mui/material";
 import { getCategories, createCategories, updateCategory, deleteCategory, getCategoryTasks } from "../../../store/endpoint/category/categoryAPI";
 import { addTasks, deleteTask, editTask, getAllTasks, updateTaskStatus } from "../../../store/endpoint/task/taskAPI";
@@ -36,7 +38,7 @@ export default function Tasks() {
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [editTaskId, setEditTaskId] = useState(null);
     const [editTaskName, setEditTaskName] = useState("");
-
+    const [statusFilter, setStatusFilter] = useState("All");
 
 
     useEffect(() => {
@@ -154,7 +156,7 @@ export default function Tasks() {
             setAlertMessage("Please select a category before adding a task.");
             return;
         }
-        setAlertMessage(""); 
+        setAlertMessage("");
         setOpenTaskDialog(true);
     };
 
@@ -211,7 +213,7 @@ export default function Tasks() {
             }
         });
     };
-    
+
     const handleOpenEditDialog = (task) => {
         setEditTaskId(task.id);
         setEditTaskName(task.task);
@@ -226,7 +228,7 @@ export default function Tasks() {
 
     const handleEditTaskSubmit = async () => {
         try {
-            await editTask(editTaskId, { task: editTaskName }); 
+            await editTask(editTaskId, { task: editTaskName });
             setTasks(tasks.map(task =>
                 task.id === editTaskId ? { ...task, task: editTaskName } : task
             ));
@@ -321,11 +323,22 @@ export default function Tasks() {
                         {alertMessage}
                     </Alert>
                 )}
-                   
+
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-               <Button onClick={handleOpenTaskDialog} variant="contained" sx={{ backgroundColor: bluegray[700] }} size="small" >
+                    <Button onClick={handleOpenTaskDialog} variant="contained" sx={{ backgroundColor: bluegray[700] }} size="small" >
                         Add Task
                     </Button>
+                    <FormControl size="small">
+                        <InputLabel>Status</InputLabel>
+                        <Select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                        >
+                            <MenuItem value="All">All</MenuItem>
+                            <MenuItem value="NOT_COMPLETE">Not Complete</MenuItem>
+                            <MenuItem value="COMPLETE">Complete</MenuItem>
+                        </Select>
+                    </FormControl>
                 </Box>
                 <TableContainer sx={{ flexGrow: 1, overflowY: "auto" }}>
                     <Table>
@@ -339,7 +352,8 @@ export default function Tasks() {
                             </TableRow>
                         </TableHead>
                         <TableBody >
-                            {tasks
+                            {tasks .filter(task => statusFilter === "All" || task.status === statusFilter)
+                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map(task => (
                                     <TableRow key={task.id}>
                                         <TableCell>{task.id}</TableCell>
@@ -348,18 +362,18 @@ export default function Tasks() {
                                         <TableCell>{new Date(task.date).toLocaleDateString()}</TableCell>
                                         <TableCell>
                                             {task.status === "COMPLETE" ? (
-                                                <IconButton  onClick={() => handleUndoTask(task.id)}>
-                                                    <UndoIcon sx={{color: bluegray[700]}} />
+                                                <IconButton onClick={() => handleUndoTask(task.id)}>
+                                                    <UndoIcon sx={{ color: bluegray[700] }} />
                                                 </IconButton>
                                             ) : (
-                                                <IconButton  onClick={() => handleCompleteTask(task.id)}>
-                                                    <CheckIcon sx={{color: bluegray[700]}} />
+                                                <IconButton onClick={() => handleCompleteTask(task.id)}>
+                                                    <CheckIcon sx={{ color: bluegray[700] }} />
                                                 </IconButton>
                                             )}
-                                            <IconButton onClick={()=>handleOpenEditDialog(task)}>
-                                                <EditIcon sx={{color: bluegray[700]}} />
+                                            <IconButton onClick={() => handleOpenEditDialog(task)}>
+                                                <EditIcon sx={{ color: bluegray[700] }} />
                                             </IconButton>
-                                            <IconButton onClick={()=>handleDeleteTask(task.id)}> 
+                                            <IconButton onClick={() => handleDeleteTask(task.id)}>
                                                 <DeleteIcon color="error" />
                                             </IconButton>
                                         </TableCell>
