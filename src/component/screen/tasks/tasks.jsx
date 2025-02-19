@@ -3,9 +3,10 @@ import {
     Box, Typography, Paper, List, ListItem, ListItemButton, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, IconButton, Button, TablePagination, TextField, Dialog, DialogActions, DialogContent, DialogTitle,
     MenuItem, Menu,
+    Alert,
 } from "@mui/material";
-import { getCategories, createCategories, updateCategory, deleteCategory } from "../../../store/endpoint/category/categoryAPI";
-import { getAllTasks} from "../../../store/endpoint/task/taskAPI";
+import { getCategories, createCategories, updateCategory, deleteCategory, getCategoryTasks } from "../../../store/endpoint/category/categoryAPI";
+import { addTasks, getAllTasks } from "../../../store/endpoint/task/taskAPI";
 import CheckIcon from "@mui/icons-material/Check";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -21,6 +22,7 @@ export default function Tasks() {
     const [searchTerm, setSearchTerm] = useState("");
     const [tasks, setTasks] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState("All Categories");
     const [selectedCategoryId, setSelectedCategoryId] = useState(null);
     const [openEditCategoryDialog, setOpenEditCategoryDialog] = useState(false);
     const [editCategoryName, setEditCategoryName] = useState("");
@@ -28,6 +30,9 @@ export default function Tasks() {
     const [rowsPerPage] = useState(5);
     const [openCategoryDialog, setOpenCategoryDialog] = useState(false);
     const [newCategory, setNewCategory] = useState("");
+    const [newTask, setNewTask] = useState("");
+    const [openTaskDialog, setOpenTaskDialog] = useState(false);
+    const [alertMessage, setAlertMessage] = useState("");
 
 
 
@@ -44,6 +49,7 @@ export default function Tasks() {
         };
         fetchInitialData();
     }, []);
+
 
 
     const handleChangePage = (event, newPage) => {
@@ -75,7 +81,6 @@ export default function Tasks() {
         }
     };
 
-    
 
     const handleOpenMenu = (event, categoryId, categoryName) => {
         setAnchorEl(event.currentTarget);
@@ -130,6 +135,49 @@ export default function Tasks() {
         }
     };
 
+    const handleCategoryClick = async (categoryId, categoryName) => {
+        try {
+            const data = await getCategoryTasks(categoryId)
+            setTasks(data);
+            setSelectedCategory(categoryName);
+            setSelectedCategoryId(categoryId);
+        } catch (error) {
+            console.error("Failed to fetch category tasks", error);
+        }
+    }
+
+    const handleOpenTaskDialog = () => {
+        if (!selectedCategoryId) {
+            setAlertMessage("Please select a category before adding a task.");
+            return;
+        }
+        setAlertMessage(""); 
+        setOpenTaskDialog(true);
+    };
+
+    const handleCloseTaskDialog = () => {
+        setOpenTaskDialog(false);
+        setNewTask("");
+    };
+
+
+    const handlesubmitTask = async () => {
+        if (!newTask.trim() || !selectedCategoryId) {
+            console.error("Task and categoryId are required");
+            return;
+        }
+
+        try {
+            await addTasks({ task: newTask, categoryId: selectedCategoryId });
+            const updatedTasks = await getCategoryTasks(selectedCategoryId);
+            setTasks(updatedTasks);
+            handleCloseTaskDialog();
+        } catch (error) {
+            console.error("Failed to add task", error.response?.data || error.message);
+        }
+    }
+
+
 
     return (
         <Box sx={{ display: "flex", height: "80vh", p: 3 }}>
@@ -154,7 +202,7 @@ export default function Tasks() {
                                 disablePadding
                                 sx={{ display: category.category.toLowerCase().includes(searchTerm.toLowerCase()) ? "flex" : "none", justifyContent: "space-between" }}
                             >
-                                <ListItemButton>
+                                <ListItemButton onClick={() => handleCategoryClick(category.id, category.category)}>
                                     {category.category}
                                 </ListItemButton>
                                 <IconButton onClick={(event) => handleOpenMenu(event, category.id, category.category)}>
@@ -171,8 +219,14 @@ export default function Tasks() {
                     <Typography variant="h6">Tasks</Typography>
                     <Typography variant="subtitle1" color="textSecondary">Category: All Categories</Typography>
                 </Box>
+                {alertMessage && (
+                    <Alert severity="warning" sx={{ mb: 2 }}>
+                        {alertMessage}
+                    </Alert>
+                )}
+                   
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                    <Button variant="contained" sx={{ backgroundColor: bluegray[700] }} size="small" >
+               <Button onClick={handleOpenTaskDialog} variant="contained" sx={{ backgroundColor: bluegray[700] }} size="small" >
                         Add Task
                     </Button>
                 </Box>
@@ -192,7 +246,7 @@ export default function Tasks() {
                                 .map(task => (
                                     <TableRow key={task.id}>
                                         <TableCell>{task.id}</TableCell>
-                                        <TableCell sx={{maxWidth:"200px"}}>{task.task}</TableCell>
+                                        <TableCell sx={{ maxWidth: "200px" }}>{task.task}</TableCell>
                                         <TableCell>{task.status}</TableCell>
                                         <TableCell>{new Date(task.date).toLocaleDateString()}</TableCell>
                                         <TableCell>
@@ -228,6 +282,7 @@ export default function Tasks() {
                 />
             </Paper>
 
+            {/* nambah category */}
             <Dialog open={openCategoryDialog} onClose={handleCloseCategoryDialog}>
                 <DialogTitle>Add Category</DialogTitle>
                 <DialogContent>
@@ -239,7 +294,7 @@ export default function Tasks() {
                 </DialogActions>
             </Dialog>
 
-
+            {/* menu category */}
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleCloseMenu}>
                 <MenuItem onClick={handleOpenEditCategoryDialog}>
                     <EditIcon sx={{ mr: 1 }} /> Edit
@@ -249,7 +304,7 @@ export default function Tasks() {
                 </MenuItem>
             </Menu>
 
-
+            {/* edit category */}
             <Dialog open={openEditCategoryDialog} onClose={() => setOpenEditCategoryDialog(false)}>
                 <DialogTitle>Edit Category</DialogTitle>
                 <DialogContent>
@@ -267,6 +322,19 @@ export default function Tasks() {
                     <Button onClick={handleEditCategorySubmit} variant="contained" sx={{ backgroundColor: bluegray[700] }}>Save</Button>
                 </DialogActions>
             </Dialog>
+
+            {/* nambah task */}
+            <Dialog open={openTaskDialog} onClose={handleCloseTaskDialog}>
+                <DialogTitle>Add Task</DialogTitle>
+                <DialogContent>
+                    <TextField autoFocus margin="dense" label="Task Name" fullWidth value={newTask} onChange={(e) => setNewTask(e.target.value)} />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseTaskDialog}>Cancel</Button>
+                    <Button onClick={handlesubmitTask} variant="contained" sx={{ backgroundColor: bluegray[700] }}>Submit</Button>
+                </DialogActions>
+            </Dialog>
+
         </Box>
     );
 }
