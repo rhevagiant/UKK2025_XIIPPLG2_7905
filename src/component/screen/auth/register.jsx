@@ -52,7 +52,6 @@ const Register = () => {
     if(passwordError) return;
     try {
       await register(formData);
-      alert("Registration successful!");
       navigate("/"); 
     } catch (errMessage) {
       setError(errMessage);
@@ -80,6 +79,8 @@ const Register = () => {
             {error}
           </Typography>
         )}
+
+
 
         <form onSubmit={handleSubmit}>
           <Box display="flex" flexDirection="column" gap={2}>

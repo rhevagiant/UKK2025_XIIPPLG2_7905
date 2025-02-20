@@ -117,6 +117,9 @@ export default function Tasks() {
                     Swal.fire("Error!", "Failed to delete category.", "error");
                 }
             }
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         });
         handleCloseMenu();
     };
@@ -279,12 +282,13 @@ export default function Tasks() {
     const handleClearCategory = async () =>{
         const taskData = await getAllTasks();
         setTasks(taskData);
+        setSelectedCategoryId(null);
         setSelectedCategory("All Categories");
     }
 
 
     return (
-        <Box sx={{ display: "flex", height: "80vh", p: 3 }}>
+        <Box sx={{ display: "flex", height: "82vh" }}>
             <Paper sx={{ width: "25%", p: 2, mr: 3, display: "flex", flexDirection: "column" }}>
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                     <Typography variant="h6">Categories</Typography>
@@ -300,8 +304,8 @@ export default function Tasks() {
                 />
                 <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
                     <List>
-                        <ListItem >
-                            <ListItemButton onClick={handleClearCategory}  sx={{ justifyContent: "space-between" }}>
+                        <ListItem sx={{px:0}}>
+                            <ListItemButton onClick={handleClearCategory}  sx={{ justifyContent: "space-between", px: 2 }}>
                                All Categories
                             </ListItemButton>
                         </ListItem>
@@ -335,10 +339,10 @@ export default function Tasks() {
                 )}
 
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                    <Button onClick={handleOpenTaskDialog} variant="contained" sx={{ backgroundColor: bluegray[700] }} size="small" >
+                    <Button onClick={handleOpenTaskDialog} variant="contained" sx={{ backgroundColor: bluegray[700], py: 1 }} size="small" >
                         Add Task
                     </Button>
-                    <FormControl size="small">
+                    <FormControl sx={{minWidth: 150}} size="small">
                         <InputLabel>Status</InputLabel>
                         <Select
                             value={statusFilter}
@@ -351,25 +355,25 @@ export default function Tasks() {
                     </FormControl>
                 </Box>
                 <TableContainer sx={{ flexGrow: 1, overflowY: "auto" }}>
-                    <Table>
+                    <Table stickyHeader>
                         <TableHead>
                             <TableRow>
-                                <TableCell>ID</TableCell>
-                                <TableCell>Task</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell>Date</TableCell>
-                                <TableCell>Action</TableCell>
+                                <TableCell sx={{fontWeight: 'bold'}}>ID</TableCell>
+                                <TableCell sx={{fontWeight: 'bold'}}>Date</TableCell>
+                                <TableCell sx={{fontWeight: 'bold'}}>Task</TableCell>
+                                <TableCell sx={{fontWeight: 'bold'}}>Status</TableCell>
+                                <TableCell sx={{textAlign:'center', fontWeight:'bold'}}>Action</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody >
                             {tasks .filter(task => statusFilter === "All" || task.status === statusFilter)
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                .map(task => (
+                                .map((task, index) => (
                                     <TableRow key={task.id}>
-                                        <TableCell>{task.id}</TableCell>
+                                        <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                                        <TableCell>{new Date(task.date).toLocaleDateString()}</TableCell>
                                         <TableCell sx={{ maxWidth: "200px" }}>{task.task}</TableCell>
                                         <TableCell>{task.status}</TableCell>
-                                        <TableCell>{new Date(task.date).toLocaleDateString()}</TableCell>
                                         <TableCell>
                                             {task.status === "COMPLETE" ? (
                                                 <IconButton onClick={() => handleUndoTask(task.id)}>

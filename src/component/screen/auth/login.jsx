@@ -30,7 +30,7 @@ const Login = () => {
 
   return (
     <Container maxWidth="xs">
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+      <Box display="flex" justifyContent="center" alignItems="center" height="95vh">
         <Paper elevation={3} sx={{ padding: 4, borderRadius: 2, width: "100%" }}>
           <Box textAlign="center" mb={2}>
             <Typography variant="h5" fontWeight="bold" sx={{ color: bluegray[700] }}>
